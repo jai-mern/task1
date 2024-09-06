@@ -1,69 +1,49 @@
-// Function to fetch data from the API
-function fetchDeviceData() {
-    const apiUrl = 'https://webportal.securamtc.in/devices/';
-
-    // Create a Basic Auth header
-    const headers = new Headers();
-    const username = 'secura';
-    const password = 'lookman!234';
-    const credentials = btoa(`${username}:${password}`);
-    headers.append('Authorization', `Basic ${credentials}`);
-    headers.append('Content-Type', 'application/json');
-
-    fetch(apiUrl, {
-        method: 'GET',
-        headers: headers
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();  // Parse JSON data from response
-    })
-    .then(data => {
-        console.log('Data fetched:', data);  // Log data for debugging
-        displayDataInTable(data);  // Pass data to the function to display
-    })
-    .catch(error => {
-        console.error('There has been a problem with your fetch operation:', error);
-    });
-}
-
-// Function to display data in the HTML table
-function displayDataInTable(data) {
-    const tableBody = document.querySelector('#deviceTable tbody');
-    tableBody.innerHTML = '';  // Clear existing table data
-
-    if (Array.isArray(data)) {
-        data.forEach(item => {
-            const row = document.createElement('tr');
-
-            const idCell = document.createElement('td');
-            idCell.textContent = item.id || 'N/A';
-            row.appendChild(idCell);
-
-            const nameCell = document.createElement('td');
-            nameCell.textContent = item.name || 'N/A';
-            row.appendChild(nameCell);
-
-            const typeCell = document.createElement('td');
-            typeCell.textContent = item.type || 'N/A';
-            row.appendChild(typeCell);
-
-            const statusCell = document.createElement('td');
-            statusCell.textContent = item.status || 'N/A';
-            row.appendChild(statusCell);
-
-            const dateCell = document.createElement('td');
-            dateCell.textContent = new Date(item.date).toLocaleDateString() || 'N/A';
-            row.appendChild(dateCell);
-
-            tableBody.appendChild(row);
-        });
-    } else {
-        tableBody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
+// Fetch API data
+fetch('https://webportal.securamtc.in/devices/', {
+    headers: {
+        'Authorization': 'Basic ' + btoa('secura:lookman!234') // Basic Auth header
     }
-}
+})
+.then(response => response.json())
+.then(data => {
+    // Log the API response for debugging (optional)
+    console.log('API Response:', data);
 
-// Call the fetch function when the page loads
-window.onload = fetchDeviceData;
+    // Access the array inside the 'data' key
+    if (Array.isArray(data.data)) {
+        const devices = data.data;  // Access the array stored in 'data.data'
+        let rows = "";
+
+        // Loop through each device and generate table rows
+        devices.forEach(device => {
+            rows += `
+                <tr>
+                    <td>${device.id}</td>
+                    <td>${device.updatedAt}</td>
+                    <td>${device.fleetNumber}</td>
+                    <td>${device.serialNo}</td>
+                    <td>${device.mnvrIp}</td>
+                    <td>${device.cameraIp1}</td>
+                    <td>${device.cameraIp2}</td>
+                    <td>${device.cameraIp3}</td>
+                    <td>${device.longitude}</td>
+                    <td>${device.latitude}</td>
+                    <td>${device.camera1Status}</td>
+                    <td>${device.camera2Status}</td>
+                    <td>${device.camera3Status}</td>
+                    <td>${device.cpuCoreUsage}</td>
+                    <td>${device.uptime}</td>
+                    <td>${device.downloadSpeed}</td>
+                    <td>${device.uploadSpeed}</td>
+                    <td>${device.ramUsage}</td>
+                </tr>
+            `;
+        });
+
+        // Insert the rows into the table body
+        document.querySelector('#deviceTable tbody').innerHTML = rows;
+    } else {
+        console.error('Data is not an array or is missing the expected key.');
+    }
+})
+.catch(error => console.error('Error fetching data:', error));
