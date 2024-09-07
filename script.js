@@ -6,12 +6,9 @@ fetch('https://webportal.securamtc.in/devices/', {
 })
 .then(response => response.json())
 .then(data => {
-    // Log the API response for debugging (optional)
-    console.log('API Response:', data);
-
-    // Access the array inside the 'data' key
+    // Assuming the array is located at `data.data`
     if (Array.isArray(data.data)) {
-        const devices = data.data;  // Access the array stored in 'data.data'
+        const devices = data.data;  // Access the array of devices
         let rows = "";
 
         // Loop through each device and generate table rows
@@ -19,29 +16,30 @@ fetch('https://webportal.securamtc.in/devices/', {
             rows += `
                 <tr>
                     <td>${device.id}</td>
-                    <td>${device.updatedAt}</td>
-                    <td>${device.fleetNumber}</td>
+                    <td>${new Date(device.updated_at).toLocaleString()}</td> <!-- Format the date correctly -->
+                    <td>${device.Fleet_Number || 'N/A'}</td>  <!-- Fleet number -->
                     <td>${device.serialNo}</td>
-                    <td>${device.mnvrIp}</td>
-                    <td>${device.cameraIp1}</td>
-                    <td>${device.cameraIp2}</td>
-                    <td>${device.cameraIp3}</td>
+                    <td>${device.MNVR_IP}</td>
+                    <td>${device.CameraIP1}</td>
+                    <td>${device.CameraIP2}</td>
+                    <td>${device.CameraIP3}</td>
                     <td>${device.longitude}</td>
                     <td>${device.latitude}</td>
-                    <td>${device.camera1Status}</td>
-                    <td>${device.camera2Status}</td>
-                    <td>${device.camera3Status}</td>
-                    <td>${device.cpuCoreUsage}</td>
-                    <td>${device.uptime}</td>
-                    <td>${device.downloadSpeed}</td>
-                    <td>${device.uploadSpeed}</td>
-                    <td>${device.ramUsage}</td>
+                    <td>${device.cam_1_status}</td>
+                    <td>${device.cam_2_status}</td>
+                    <td>${device.cam_3_status}</td>
+                    <td>${device.cpu_core_usage}</td>
+                    <td>${device.uptime || 'N/A'}</td>
+                    <td>${device.download_speed}</td>
+                    <td>${device.upload_speed || 'N/A'}</td>
+                    <td>${device.ram_usage}</td>
                 </tr>
             `;
         });
 
         // Insert the rows into the table body
         document.querySelector('#deviceTable tbody').innerHTML = rows;
+
     } else {
         console.error('Data is not an array or is missing the expected key.');
     }
